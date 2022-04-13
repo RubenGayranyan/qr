@@ -1,4 +1,3 @@
-import MySQLdb
 import qrcode
 import random
 from datetime import datetime
