@@ -1,8 +1,10 @@
+import MySQLdb
 import qrcode
 import random
 from datetime import datetime
 import telebot
-import mysql.connector as mysql
+import mysql.connector
+from mysql.connector import Error
 
 bot = telebot.TeleBot("5239236978:AAFYs8tCXGI9sGh5UhIjNCh9uOqANi1Yp8Y")
 
@@ -18,7 +20,6 @@ qr = qrcode.QRCode(
         box_size=10,
         border=5)
         
-
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
     fName = message.from_user.first_name
@@ -28,13 +29,32 @@ def send_welcome(message):
 /eevent - Edit event.\n\
 /test - QR generation", parse_mode="HTML")
                              
-host = "141.8.192.151"
-database = "f0658097_telegram"
-user = "f0658097_telegram"
-password = "hapaumucdi$"
+MYSQL_HOST = "141.8.192.151"
+MYSQL_USER = "f0658097_telegram"
+MYSQL_PASSWORD = "hapaumucdi"
+MYSQL_DB = "f0658097_telegram"
 
-myConnection = mysql.connect()
-print(mysql.__version_info__)
+try:
+    connection = mysql.connector.connect(host=MYSQL_HOST,
+                                         user=MYSQL_USER,
+                                         password=MYSQL_PASSWORD,
+                                        database=MYSQL_DB)
+    if connection.is_connected():
+        db_Info = connection.get_server_info()
+        print("Connected to MySQL Server version ", db_Info)
+        cursor = connection.cursor()
+        cursor.execute("select database();")
+        record = cursor.fetchone()
+        print("You're connected to database: ", record)
+
+except Error as e:
+    print("Error while connecting to MySQL", e)
+finally:
+    if connection.is_connected():
+        cursor.close()
+        connection.close()
+        print("MySQL connection is closed")
+
 
 @bot.message_handler(commands=["test"])
 def send_code(message):
